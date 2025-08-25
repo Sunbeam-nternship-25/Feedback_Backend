@@ -42,10 +42,22 @@ app.use((request, response, next) => {
 })
 
 const cocoRoute = require('./routes/coco')
+const courseRoute = require('./routes/course')
+const feedback_scheduleRoute = require('./routes/feedbackSchedule')
+const moduleRoute = require('./routes/module')
+const module_typeRoute = require('./routes/moduleType')
+const teacherRoute = require('./routes/teacher')
 
 
 
 app.use('/coco', cocoRoute)
+app.use('/course',courseRoute)
+app.use('/module', moduleRoute)
+
+app.use('/module_type',module_typeRoute)
+app.use('/feedbackSchedule',feedback_scheduleRoute)
+app.use('/teacher',teacherRoute)
+
 
 
 app.listen(4003, () => {
