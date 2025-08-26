@@ -52,8 +52,6 @@ router.post('/fillFeedback', (request, response) => {
 });
 
 
-<<<<<<< HEAD
-=======
 router.post('/fillFeedback2', (request, response) => {
     const { q1, q2, q3, q4, q5, suggestion } = request.body;
     const studentId = request.userInfo.student_id;
@@ -151,7 +149,6 @@ router.get('/checkFeedback', (request, response) => {
 
 
 
->>>>>>> bac2c09 (Student Backend all apis completed)
 router.get("/activeFeedback", (request, response) => {
   // Extract student info from token payload
   const { group_id, course_id } = request.userInfo;
