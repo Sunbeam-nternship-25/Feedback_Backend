@@ -27,12 +27,12 @@ router.get("/groupbycourse/:course_name", (request, response) => {
 });
 
 router.get("/allCourseGroup", (request, response) => {
-  const statement = `select group_name from course_group`;
-
+  const statement = `SELECT group_id, group_name FROM course_group`;
   db.pool.execute(statement, (error, result) => {
     response.send(utils.createResult(error, result));
   });
 });
+
 
 router.post("/insertCourse", (request, response) => {
   const { group_name, course_name } = request.body;
