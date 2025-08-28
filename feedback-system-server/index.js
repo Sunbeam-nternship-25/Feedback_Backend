@@ -46,6 +46,23 @@ app.get('/teachers', (req, res) => {
   });
 });
 
+app.post('/teachers/login', (req, res) => {
+  const { email, password } = req.body;
+  db.query(
+    'SELECT * FROM teacher WHERE email = ?',
+    [email],
+    async (err, results) => {
+      if (err) return res.status(500).send(err);
+      if (results.length === 0) return res.status(400).send('Teacher not found');
+      const teacher = results[0];
+      const validPassword = await bcrypt.compare(password, teacher.password);
+      if (!validPassword) return res.status(400).send('Incorrect password');
+      res.send('Login successful');
+    }
+  );
+});
+
+
 app.listen(5000, () => console.log('Server running on port 5000'));
 
 
