@@ -6,14 +6,13 @@ const router = express.Router();
 
 
 
-router.get("/allModulesType",(request,response)=>{
+router.get("/allModulesType", (request, response) => {
+  const statement = `SELECT module_type_id, module_type_name FROM module_type`;
+  db.pool.execute(statement, (error, result) => {
+    response.send(utils.createResult(error, result));
+  });
+});
 
-    const statement =  `select module_type_name from module_type`;
-
-    db.pool.execute(statement,(error,result)=>{
-        response.send(utils.createResult(error,result))
-    })
-})
 
 
 

@@ -6,15 +6,17 @@ const router = express.Router();
 
 
 
-router.get("/allModules",(request,response)=>{
+router.get("/allModules", (request, response) => {
+  const statement = `
+   SELECT module.module_id, module.module_name, course.course_name
+FROM module
+INNER JOIN course ON module.course_id = course.course_id;
 
-    const statement =  `select module_name ,course_name from 
-    module INNER JOIN course on module.course_id = course.course_id`;
-
-    db.pool.execute(statement,(error,result)=>{
-        response.send(utils.createResult(error,result))
-    })
-})
+  `;
+  db.pool.execute(statement, (error, result) => {
+    response.send(utils.createResult(error, result));
+  });
+});
 
 
 
