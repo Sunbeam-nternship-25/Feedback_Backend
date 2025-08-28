@@ -61,6 +61,12 @@ app.post('/teachers/login', (req, res) => {
     }
   );
 });
+app.get('/teachers', (req, res) => {
+  db.query('SELECT teacher_id, first_name, last_name, email FROM teacher', (err, results) => {
+    if (err) return res.status(500).send(err);
+    res.json(results);
+  });
+});
 
 
 app.listen(5000, () => console.log('Server running on port 5000'));
