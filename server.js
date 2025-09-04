@@ -1,60 +1,65 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const config = require("./config");
-const utils = require("./utils");
-const cors = require("cors");
-const app = express();
+const express = require('express')
+const cors = require('cors')
+const app = express()
+const config = require('./config')
+const utils = require('./utils')
+const jwt = require("jsonwebtoken")
+
+
 
 
 app.use(cors())
-app.use(express.json());
-app.use(express.urlencoded());
-
+app.use(express.json())
 
 
 app.use((request, response, next) => {
-  if (request.url == "/student/login" || request.url == "/student/newRegister" 
-     ||  request.url == "/group/groupbycourse/course_name" || request.url == "/course/allCourses") {
-    next();
+  if (request.url == '/coco/register' || request.url == '/coco/login') {
+    next()
   } else {
-    let token = request.headers["authorization"];
+    let token = request.headers['authorization']
+   
     if (!token) {
-      response.send(utils.createError("token is missing"));
-      return;
+      response.send(utils.createError('token is missing'))
+      return
     }
 
-    token = token.replace("Bearer", "").trim();
+    token = token.replace('Bearer', '').trim()
 
     try {
       if (jwt.verify(token, config.secret)) {
-        const payload = jwt.decode(token);
-        request["userInfo"] = payload;
+        console.log(token)
+        const payload = jwt.decode(token)
+        console.log(payload)
+        request['userInfo'] = payload
         next();
       } else {
-        response.send(utils.createError("Invalid token"));
+        response.send(utils.createError('invalid token'))
       }
     } catch (ex) {
-      response.send(utils.createError("Invalid token"));
+      response.send(utils.createError('invalid token 2'))
     }
   }
-});
+})
+
+const cocoRoute = require('./routes/coco')
+const courseRoute = require('./routes/course')
+const feedback_scheduleRoute = require('./routes/feedbackSchedule')
+const moduleRoute = require('./routes/module')
+const module_typeRoute = require('./routes/moduleType')
+const teacherRoute = require('./routes/teacher')
 
 
 
-const studentRouter = require("./router/student");
-const feedbackRouter = require("./router/feedback")
-const courseRouter = require("./router/course")
-const groupRouter= require("./router/group")
+app.use('/coco', cocoRoute)
+app.use('/course',courseRoute)
+app.use('/module', moduleRoute)
+
+app.use('/module_type',module_typeRoute)
+app.use('/feedbackSchedule',feedback_scheduleRoute)
+app.use('/teacher',teacherRoute)
 
 
 
-
-app.use("/student", studentRouter);
-app.use("/feedback",feedbackRouter)
-app.use("/course" , courseRouter)
-app.use("/group",groupRouter)
-
-
-app.listen(4000, "0.0.0.0", () => {
-  console.log("server is running on port 4000");
-});
+app.listen(4003, () => {
+    console.log(`Server running at http://localhost:4003`)
+})

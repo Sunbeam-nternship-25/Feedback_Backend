@@ -5,14 +5,16 @@ const utils = require("../utils");
 const router = express.Router();
 
 router.post("/createFeedback", async (request, response) => {
-  const course_id = request.userInfo.course_id
+
   const {
     teacher_id,
     module_id,
     module_type_id,
     group_id,
+    course_id,
     start_time,
     end_time,
+    is_active
   } = request.body;
 
   
@@ -22,7 +24,8 @@ router.post("/createFeedback", async (request, response) => {
     group_id,
     course_id,
     start_time,
-    end_time)values (?,?,?,?,?,?,?)`;
+    end_time,
+    is_active)values (?,?,?,?,?,?,?,?)`;
 
   db.pool.execute(
     statement,
@@ -34,6 +37,7 @@ router.post("/createFeedback", async (request, response) => {
       course_id,
       start_time,
       end_time,
+      is_active
     ],
     (error, results) => {
       response.send(utils.createResult(error, results));
@@ -145,5 +149,33 @@ router.delete("/deleteFeedback/:id", async (request, response) => {
   });
 });
 
+router.get("/studentsFeedbackStatus", (request, response) => {
+  const course_id = request.userInfo?.course_id;
 
-module.exports = router; 
+
+
+  const statement = `
+    SELECT s.student_id, s.first_name, s.last_name, s.email, s.course_id, s.group_id,
+           CASE WHEN f.feedback_id IS NOT NULL THEN 'Submitted' ELSE 'Not Submitted' END AS feedback_status
+    FROM student s
+    JOIN feedback_schedule fs 
+      ON s.course_id = fs.course_id AND s.group_id = fs.group_id
+    LEFT JOIN feedback f 
+      ON s.student_id = f.student_id AND f.feedback_schedule_id = fs.feedback_schedule_id
+    WHERE s.course_id = ?   -- filter by course, not teacher
+  `;
+
+  db.pool.execute(statement, [course_id], (error, result) => {
+    if (error) {
+      console.error("SQL Error:", error); 
+      response.send(utils.createError(error));
+    } else {
+      const submitted = result.filter(r => r.feedback_status === "Submitted");
+      const notSubmitted = result.filter(r => r.feedback_status === "Not Submitted");
+
+      response.send(utils.createResult(null, { submitted, notSubmitted }));
+    }
+  });
+});
+
+module.exports = router;
