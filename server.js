@@ -50,7 +50,7 @@ const teacherRoute = require('./routes/teacher')
 
 
 
-app.use('/coco', cocoRoute)
+app.use('/coco',cocoRoute)
 app.use('/course',courseRoute)
 app.use('/module', moduleRoute)
 

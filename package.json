@@ -1,9 +1,4 @@
 {
-<<<<<<< HEAD
-  "dependencies": {
-    "cors": "^2.8.5",
-    "crypto-js": "^4.2.0",
-=======
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
@@ -19,7 +14,6 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^17.2.1",
->>>>>>> kajal
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.3"

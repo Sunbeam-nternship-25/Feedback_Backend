@@ -1,6 +1,5 @@
 const crypto = require('crypto-js')
 
-<<<<<<< HEAD
 
 function createResult(error,data){
     if(error){
@@ -30,7 +29,7 @@ module.exports ={
     createSucess,
     encryptPassword,
 };
-=======
+
 function createResult(error, data) {
     if(error){
         return createError(error)
@@ -40,6 +39,7 @@ function createResult(error, data) {
 }
 
 function createError(error) {
+    
     return{ status: 'error', error }
 }
 
@@ -57,4 +57,3 @@ module.exports = {
     createResult,
     encryptPassword
 }
->>>>>>> kajal
