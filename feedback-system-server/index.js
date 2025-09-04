@@ -1,74 +1,35 @@
 const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
-const db = require('./db');
-const app = express();
+const { pool } = require('./teacher-backend/db');
+const jwt = require('jsonwebtoken');
+const config = require('./teacher-backend/config');
+const utils = require('./teacher-backend/utils');
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Teacher Registration API
-app.post('/teachers', async (req, res) => {
-  const { first_name, last_name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  db.query(
-    'INSERT INTO teacher (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
-    [first_name, last_name, email, hashedPassword],
-    (err, result) => {
-      if (err) return res.status(500).send(err);
-      res.send('Teacher registered successfully');
-    }
-  );
+// JWT Middleware
+const PUBLIC_PATHS = new Set(['/teachers', '/teachers/login']);
+app.use((req, res, next) => {
+  if (PUBLIC_PATHS.has(req.path)) return next();
+  const token = req.headers['token'];
+  if (!token) return res.status(401).send(utils.createError('Missing token'));
+  try {
+    const data = jwt.verify(token, config.secret);
+    req.userInfo = data;
+    next();
+  } catch (e) {
+    return res.status(401).send(utils.createError('Invalid or expired token'));
+  }
 });
 
-// Teacher Login API
-app.post('/teachers/login', (req, res) => {
-  const { email, password } = req.body;
-  db.query(
-    'SELECT * FROM teacher WHERE email = ?',
-    [email],
-    async (err, results) => {
-      if (err) return res.status(500).send(err);
-      if (results.length === 0) return res.status(400).send('Teacher not found');
-      const teacher = results[0];
-      const validPassword = await bcrypt.compare(password, teacher.password);
-      if (!validPassword) return res.status(400).send('Incorrect password');
-      res.send('Login successful');
-    }
-  );
-});
+// Routes import
+const teacherRoutes = require('./routes/teacher');
+const studentRoutes = require('./routes/student');
+app.use('/teachers', teacherRoutes);
+app.use('/students', studentRoutes);
 
-// Get all teachers
-app.get('/teachers', (req, res) => {
-  db.query('SELECT teacher_id, first_name, last_name, email FROM teacher', (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.json(results);
-  });
-});
-
-app.post('/teachers/login', (req, res) => {
-  const { email, password } = req.body;
-  db.query(
-    'SELECT * FROM teacher WHERE email = ?',
-    [email],
-    async (err, results) => {
-      if (err) return res.status(500).send(err);
-      if (results.length === 0) return res.status(400).send('Teacher not found');
-      const teacher = results[0];
-      const validPassword = await bcrypt.compare(password, teacher.password);
-      if (!validPassword) return res.status(400).send('Incorrect password');
-      res.send('Login successful');
-    }
-  );
-});
-app.get('/teachers', (req, res) => {
-  db.query('SELECT teacher_id, first_name, last_name, email FROM teacher', (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.json(results);
-  });
-});
-
-
-app.listen(5000, () => console.log('Server running on port 5000'));
-
-
+// Server start
+const PORT = 5000;
+app.listen(PORT, () => console.log('Server running on port 5000'));
