@@ -4,48 +4,6 @@ const utils = require("../utils");
 
 const router = express.Router();
 
-router.post("/createFeedback", async (request, response) => {
-
-  const {
-    teacher_id,
-    module_id,
-    module_type_id,
-    group_id,
-    course_id,
-    start_time,
-    end_time,
-    is_active
-  } = request.body;
-
-  
-  const statement = `insert into feedback_schedule( teacher_id,
-    module_id,
-    module_type_id,
-    group_id,
-    course_id,
-    start_time,
-    end_time,
-    is_active)values (?,?,?,?,?,?,?,?)`;
-
-  db.pool.execute(
-    statement,
-    [
-      teacher_id,
-      module_id,
-      module_type_id,
-      group_id,
-      course_id,
-      start_time,
-      end_time,
-      is_active
-    ],
-    (error, results) => {
-      response.send(utils.createResult(error, results));
-    }
-  );
-  
-});
-
 router.get("/activeFeedback", async (request, response) => {
   const statement = `
   SELECT 
@@ -95,59 +53,7 @@ router.get("/deActiveFeedback", async (request, response) => {
   });
 });
 
-router.put("/updateFeedback/:id", async (request, response) => {
-      const { id } = request.params
-  const {
-    teacher_id,
-    module_id,
-    module_type_id,
-    group_id,
-    course_id,
-    start_time,
-    end_time,
-  } = request.body;
 
-
-
-
-  const statement = `update feedback_schedule set
-  teacher_id = ?,
-    module_id =?,
-    module_type_id =?,
-    group_id =?,
-    course_id =?,
-    start_time =?,
-    end_time  =?
-    where feedback_schedule_id =?`;
-
-  db.pool.execute(
-    statement,
-    [
-      teacher_id,
-      module_id,
-      module_type_id,
-      group_id,
-      course_id,
-      start_time,
-      end_time,
-      id
-    ],
-    (error, results) => {
-      response.send(utils.createResult(error, results));
-    }
-  );
-});
-
-
-router.delete("/deleteFeedback/:id", async (request, response) => {
-  const { id } = request.params;
-
-  const statement = `DELETE FROM feedback_schedule WHERE feedback_schedule_id = ?`;
-
-  db.pool.execute(statement, [id], (error, results) => {
-    response.send(utils.createResult(error, results));
-  });
-});
 
 
 // To get data of FeedbackSchedule for Teacher 
