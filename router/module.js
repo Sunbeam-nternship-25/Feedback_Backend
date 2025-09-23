@@ -4,79 +4,63 @@ const utils = require("../utils");
 
 const router = express.Router();
 
-
-
-router.get("/allModules", (request, response) => {
+// Get all modules with course names (includes modules without matching course)
+router.get("/allModules", (req, res) => {
   const statement = `
-   SELECT module.module_id, module.module_name, course.course_name
-FROM module
-INNER JOIN course ON module.course_id = course.course_id;
-
+    SELECT module.module_id, module.module_name, course.course_name, course.course_id
+    FROM module
+    LEFT JOIN course ON module.course_id = course.course_id
   `;
-  db.pool.execute(statement, (error, result) => {
-    response.send(utils.createResult(error, result));
+  db.pool.execute(statement, (error, results) => {
+    res.send(utils.createResult(error, results));
   });
 });
 
+// Get modules filtered by course_name (use LEFT JOIN to be safe)
+router.get("/allModulesbyCourse/:course_name", (req, res) => {
+  const { course_name } = req.params;
+  const statement = `
+    SELECT module.module_id, module.module_name, course.course_name, course.course_id
+    FROM module
+    LEFT JOIN course ON module.course_id = course.course_id
+    WHERE course.course_name = ?
+  `;
+  db.pool.execute(statement, [course_name], (error, results) => {
+    res.send(utils.createResult(error, results));
+  });
+});
 
+// Insert new module
+router.post("/insertModule", (req, res) => {
+  const { module_name, course_id } = req.body;
 
-router.get("/allModulesbyCourse/:course_name",(request,response)=>{
+  const statement = `INSERT INTO module (module_name, course_id) VALUES (?, ?)`;
 
-    const{course_name} = request.params
-    console.log(course_name)
+  db.pool.execute(statement, [module_name, course_id], (error, result) => {
+    res.send(utils.createResult(error, result));
+  });
+});
 
-    const statement =  `select module_name from 
-    module INNER JOIN course on module.course_id = course.course_id 
-    where course_name =?`;
+// Update existing module
+router.put("/updateModule", (req, res) => {
+  const { module_name, module_id, course_id } = req.body;
 
-    db.pool.execute(statement,[course_name],(error,result)=>{
-        response.send(utils.createResult(error,result))
-    })
-})
+  const statement = `UPDATE module SET module_name = ?, course_id = ? WHERE module_id = ?`;
 
+  db.pool.execute(statement, [module_name, course_id, module_id], (error, result) => {
+    res.send(utils.createResult(error, result));
+  });
+});
 
+// Delete module
+router.delete("/deleteModule", (req, res) => {
+  const { module_id } = req.body;
 
+  const statement = `DELETE FROM module WHERE module_id = ?`;
 
+  db.pool.execute(statement, [module_id], (error, result) => {
+    res.send(utils.createResult(error, result));
+  });
+});
 
-
-router.post("/insertModule",(request,response)=>{
-      
-    const {module_name}= request.body 
-
-    const statement =  `insert into module(module_name)values (?)`
-
-    db.pool.execute(statement,[module_name],(error,result)=>{
-        response.send(utils.createResult(error,result))
-    })
-})
-
-
-
-
-router.put("/updateModule",(request,response)=>{
-      const {module_name,module_id}= request.body 
-
-    const statement =  `update module set module_name = ? where module_id =?
-    `
-
-    db.pool.execute(statement,[module_name,module_id],(error,result)=>{
-        response.send(utils.createResult(error,result))
-    })
-})
-
-
-
-
-router.delete("/deleteModule",(request,response)=>{
-
-
-     const {module_id}= request.body
-    const statement =  `delete from module where module_id = ?`
-
-    db.pool.execute(statement,[module_id],(error,result)=>{
-        response.send(utils.createResult(error,result))
-    })
-})
-
-
-module.exports=router;
+module.exports = router;

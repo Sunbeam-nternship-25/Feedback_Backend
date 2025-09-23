@@ -44,6 +44,10 @@ const courseRouter= require("./router/course")
 const moduleRouter= require("./router/module")
 const moduleTypeRouter= require("./router/module_type")
 const feedbackScheduleRouter = require("./router/feedbackSchedule");
+const studentRouter = require("./router/student");
+const teacherRouter = require("./router/teacher");
+
+
 
 app.use("/admin", adminRouter);
 app.use("/courseGroup", courseGroupRouter);
@@ -51,6 +55,9 @@ app.use("/course", courseRouter);
 app.use("/module", moduleRouter);
 app.use("/moduleType", moduleTypeRouter);
 app.use("/feedbackSchedule",feedbackScheduleRouter)
+app.use("/student", studentRouter);
+app.use("/teacher", teacherRouter);
+
 
 app.listen(4001, "0.0.0.0", () => {
   console.log("server is running on port 4001");

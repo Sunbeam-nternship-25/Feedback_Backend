@@ -3,7 +3,7 @@ const db = require("../database");
 
 const router = express.Router();
 
-// Create new feedback schedule
+// Create new feedback schedule with is_active = 1 by default (active)
 router.post("/createFeedback", (req, res) => {
   const {
     teacher_id,
@@ -17,14 +17,14 @@ router.post("/createFeedback", (req, res) => {
 
   const statement = `
     INSERT INTO feedback_schedule
-      (teacher_id, module_id, module_type_id, group_id, course_id, start_time, end_time)
+      (teacher_id, module_id, module_type_id, group_id, course_id, start_time, end_time, is_active)
     VALUES
-      (?, ?, ?, ?, ?, ?, ?)
+      (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.pool.execute(
     statement,
-    [teacher_id, module_id, module_type_id, group_id, course_id, start_time, end_time],
+    [teacher_id, module_id, module_type_id, group_id, course_id, start_time, end_time, 1], // active by default
     (error, results) => {
       if (error) {
         console.error("Error inserting feedback:", error);
@@ -100,7 +100,7 @@ router.get("/deActiveFeedback", (req, res) => {
   });
 });
 
-// Update feedback schedule
+// Update feedback schedule details (excluding active status)
 router.put("/updateFeedback/:id", (req, res) => {
   const { id } = req.params;
   const {
@@ -157,6 +157,27 @@ router.delete("/deleteFeedback/:id", (req, res) => {
   db.pool.execute(statement, [id], (error, results) => {
     if (error) {
       console.error("Error deleting feedback:", error);
+      res.status(500).json({ error: error.message });
+    } else {
+      res.json({ success: true, data: results });
+    }
+  });
+});
+
+// New route: Update is_active status (activate/deactivate feedback schedule)
+router.put("/setActiveStatus/:id", (req, res) => {
+  const { id } = req.params;
+  const { is_active } = req.body; // expect 1 or 0
+
+  const statement = `
+    UPDATE feedback_schedule 
+    SET is_active = ?
+    WHERE feedback_schedule_id = ?
+  `;
+
+  db.pool.execute(statement, [is_active, id], (error, results) => {
+    if (error) {
+      console.error("Error updating feedback active status:", error);
       res.status(500).json({ error: error.message });
     } else {
       res.json({ success: true, data: results });
