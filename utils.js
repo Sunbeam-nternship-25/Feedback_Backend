@@ -28,6 +28,9 @@ module.exports ={
     createError,
     createSucess,
     encryptPassword,
+
+};
+=======
 };
 
 function createResult(error, data) {
@@ -57,3 +60,4 @@ module.exports = {
     createResult,
     encryptPassword
 }
+
